@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>TaskMarket — MVP</title>
+<style>
+:root{--bg:#0b1020;--card:#151c31;--card2:#1b2440;--text:#f5f7ff;--muted:#9da8c2;--accent:#6c63ff;--green:#36d399;--line:#28324f}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#0b1020,#0f1528);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif}
+.app{max-width:560px;margin:auto;min-height:100vh;padding-bottom:90px}.top{padding:22px 18px 12px;display:flex;justify-content:space-between;align-items:center}.logo{font-size:22px;font-weight:800}.logo span{color:var(--accent)}.avatar{width:40px;height:40px;border-radius:14px;background:linear-gradient(135deg,#6c63ff,#a78bfa);display:grid;place-items:center;font-weight:800}
+.hero{margin:10px 16px;padding:22px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(135deg,#1b2450,#151b31);box-shadow:0 15px 40px #0003}.hero h1{font-size:28px;line-height:1.1;margin:0 0 10px}.hero p{color:var(--muted);margin:0 0 18px}.btn{border:0;border-radius:14px;padding:13px 17px;background:var(--accent);color:white;font-weight:800;font-size:15px;cursor:pointer}.btn.secondary{background:#252e49}.btn.green{background:#159b70}.row{display:flex;gap:10px;align-items:center}.section{padding:12px 16px}.sectionhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.section h2{font-size:19px;margin:0}.muted{color:var(--muted);font-size:13px}
+.tasks{display:grid;gap:10px}.task{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px}.tasktop{display:flex;justify-content:space-between;gap:10px}.task h3{font-size:16px;margin:0 0 7px}.price{color:var(--green);font-weight:900;white-space:nowrap}.tags{display:flex;gap:6px;flex-wrap:wrap;margin:11px 0}.tag{font-size:11px;background:#202a45;color:#b8c3df;padding:5px 8px;border-radius:8px}.taskfoot{display:flex;justify-content:space-between;align-items:center}.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(560px,100%);height:76px;background:#10162aee;backdrop-filter:blur(16px);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding-top:8px}.nav button{background:none;border:0;color:#8792ad;font-size:11px}.nav button.active{color:white}.ico{font-size:21px;display:block;margin-bottom:3px}.screen{display:none}.screen.active{display:block}.balance{padding:18px;border-radius:20px;background:linear-gradient(135deg,#18264b,#142034);border:1px solid var(--line);margin-bottom:12px}.amount{font-size:32px;font-weight:900;margin:7px 0 16px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{background:var(--card);padding:15px;border-radius:16px;border:1px solid var(--line)}.stat b{font-size:20px}.modal{position:fixed;inset:0;background:#0009;display:none;align-items:flex-end;justify-content:center;z-index:5}.modal.open{display:flex}.sheet{width:min(560px,100%);background:#12192b;border-radius:25px 25px 0 0;padding:20px;border:1px solid var(--line)}input,textarea,select{width:100%;margin:7px 0 13px;padding:13px;border-radius:12px;border:1px solid var(--line);background:#0d1425;color:white;font:inherit}textarea{min-height:90px;resize:vertical}.chatlist{display:grid;gap:8px}.chatitem{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px;cursor:pointer}.chatitem b{display:block;margin-bottom:4px}.chatitem small{color:var(--muted)}.chatbox{height:55vh;display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden}.chathead{padding:14px;border-bottom:1px solid var(--line);font-weight:800}.messages{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:8px}.msg{max-width:80%;padding:10px 12px;border-radius:14px;background:#202a45;align-self:flex-start;white-space:pre-wrap;word-break:break-word}.msg.me{background:var(--accent);align-self:flex-end}.msg time{display:block;font-size:10px;opacity:.65;margin-top:4px}.chatinput{display:flex;gap:8px;padding:10px;border-top:1px solid var(--line)}.chatinput input{margin:0}.toast{position:fixed;top:18px;left:50%;transform:translateX(-50%);background:#18243e;border:1px solid var(--line);padding:12px 16px;border-radius:12px;display:none;z-index:10}.toast.show{display:block}.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.admin-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}.admin-card b{font-size:21px}.admin-list{display:grid;gap:8px}.admin-row{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}.admin-row .muted{display:block;margin-top:3px}.danger{background:#9b3046!important}.select-mini{width:auto;margin:0;padding:8px}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top"><div class="logo">Task<span>Market</span></div><div class="avatar" id="topAvatar" onclick="showProfile()">Р</div></header>
+
+<main id="home" class="screen active">
+<section class="hero"><h1>Заробляй на своїх навичках</h1><p>Знаходь замовлення, виконуй їх і отримуй оплату. Платформа бере 7% комісії.</p><button class="btn" onclick="openCreate()">+ Створити завдання</button></section>
+<section class="section"><div class="sectionhead"><h2>Популярні завдання</h2><span class="muted">Дивитись усі</span></div><div id="homeTasks" class="tasks"></div></section>
+</main>
+
+<main id="tasks" class="screen">
+<section class="section"><div class="sectionhead"><h2>Всі завдання</h2><span class="muted" id="taskCount"></span></div><div class="tasks" id="allTasks"></div></section>
+</main>
+
+<main id="chats" class="screen">
+<section class="section"><div class="sectionhead"><h2>Чати</h2><button class="btn secondary" onclick="loadChats()">↻</button></div><div id="chatList" class="chatlist"><span class="muted">Увійдіть, щоб користуватися чатами.</span></div></section>
+</main>
+
+<main id="chat" class="screen">
+<section class="section"><div class="sectionhead"><button class="btn secondary" onclick="showChats()">← Чати</button><span class="muted" id="chatStatus"></span></div><div class="chatbox"><div class="chathead" id="chatTitle">Чат</div><div class="messages" id="messages"></div><div class="chatinput"><input id="messageInput" placeholder="Напишіть повідомлення…" maxlength="4000" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"><button class="btn" onclick="sendMessage()">➤</button></div></div></section>
+</main>
+
+<main id="wallet" class="screen">
+<section class="section">
+<div class="balance">
+  <span class="muted">Мій криптобаланс</span>
+  <div class="stats" style="margin-top:12px">
+    <div class="stat"><span class="muted">TON</span><br><b id="tonBalance">0.0000</b></div>
+    <div class="stat"><span class="muted">USDT</span><br><b id="usdtBalance">0.00</b></div>
+  </div>
+  <div class="row" style="margin-top:15px">
+    <button class="btn green" onclick="openDeposit()">+ Поповнити</button>
+    <button class="btn secondary" onclick="refreshBalance()">↻ Оновити</button>
+  </div>
+</div>
+<div class="task">
+  <div class="sectionhead"><h2>TON / USDT</h2></div>
+  <div id="ton-connect"></div>
+  <p class="muted">Підключіть TON Wallet для поповнення.</p>
+</div>
+<div class="task">
+  <div class="sectionhead"><h2>Останні операції</h2></div>
+  <div id="paymentHistory"><span class="muted">Завантаження…</span></div>
+</div>
+</section>
+</main>
+
+<main id="admin" class="screen">
+<section class="section">
+<div class="sectionhead"><h2>Адмін-панель</h2><button class="btn secondary" onclick="loadAdmin()">↻</button></div>
+<div class="admin-grid" id="adminStats"></div>
+<div class="sectionhead" style="margin-top:18px"><h2>Користувачі</h2></div><div id="adminUsers" class="admin-list"></div>
+<div class="sectionhead" style="margin-top:18px"><h2>Завдання</h2></div><div id="adminTasks" class="admin-list"></div>
+<div class="sectionhead" style="margin-top:18px"><h2>Платежі</h2></div><div id="adminPayments" class="admin-list"></div>
+</section></main>
+
+<main id="profile" class="screen">
+<section class="section"><div class="task" style="text-align:center;padding:25px">
+<div class="avatar" id="profileAvatar" style="margin:auto;width:64px;height:64px;font-size:22px">Р</div>
+<h2 id="profileName">Гість</h2><p class="muted" id="profileEmail">Увійдіть або створіть акаунт</p>
+<button class="btn" id="authBtn" onclick="openAuth()">Увійти / Реєстрація</button>
+<button class="btn secondary" id="adminBtn" style="display:none;margin-top:10px;width:100%" onclick="showAdmin()">⚙ Адмін-панель</button>
+<button class="btn secondary" id="logoutBtn" style="display:none;margin-left:6px" onclick="logout()">Вийти</button>
+</div></section>
+</main>
+
+<nav class="nav">
+<button class="active" onclick="show('home',this)"><span class="ico">⌂</span>Головна</button>
+<button onclick="show('tasks',this)"><span class="ico">▣</span>Завдання</button>
+<button onclick="showChats()"><span class="ico">💬</span>Чати</button><button onclick="show('wallet',this)"><span class="ico">₿</span>Баланс</button>
+<button onclick="show('profile',this)"><span class="ico">●</span>Профіль</button>
+</nav>
+</div>
+
+<div class="modal" id="modal"><div class="sheet"><div class="sectionhead"><h2>Нове завдання</h2><button class="btn secondary" onclick="closeCreate()">✕</button></div>
+<label>Назва</label><input id="title" placeholder="Наприклад: Зробити логотип">
+<label>Опис</label><textarea id="desc" placeholder="Що потрібно зробити?"></textarea>
+<label>Бюджет, $</label><input id="budget" type="number" min="1" value="10">
+<label>Категорія</label><select id="cat"><option>Дизайн</option><option>Програмування</option><option>Тексти</option><option>Відео</option><option>Інше</option></select>
+<button class="btn" style="width:100%;margin-top:5px" onclick="createTask()">Опублікувати</button>
+</div></div>
+<div class="modal" id="depositModal"><div class="sheet">
+<div class="sectionhead"><h2>Поповнення</h2><button class="btn secondary" onclick="closeDeposit()">✕</button></div>
+<p class="muted">Кошти надходять на гаманець платформи. Оберіть валюту та суму.</p>
+<label>Валюта</label><select id="payAsset"><option value="TON">TON</option><option value="USDT">USDT (TON)</option></select>
+<label>Сума</label><input id="payAmount" type="number" min="0.01" step="0.01" value="1">
+<button class="btn" style="width:100%" onclick="startDeposit()">Створити платіж</button>
+<div id="paymentInfo" class="muted" style="margin-top:12px"></div>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<div class="modal" id="authModal"><div class="sheet">
+<div class="sectionhead"><h2 id="authTitle">Реєстрація</h2><button class="btn secondary" onclick="closeAuth()">✕</button></div>
+<p class="muted" id="authHint">Створіть акаунт, щоб публікувати завдання та відгукуватися на замовлення.</p>
+<label>Ім'я</label><input id="authName" placeholder="Ваше ім'я">
+<label>Email</label><input id="authEmail" type="email" placeholder="you@example.com">
+<label>Пароль</label><input id="authPass" type="password" placeholder="Мінімум 6 символів">
+<button class="btn" style="width:100%" onclick="register()">Створити акаунт</button>
+<p style="text-align:center;margin:15px 0 0"><button class="btn secondary" onclick="toggleAuth()">Вже маєте акаунт? Увійти</button></p>
+</div></div>
+
+<script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+<script>
+let tasks=[
+{title:'Створити логотип для Telegram-каналу',desc:'Потрібен сучасний мінімалістичний логотип.',price:35,cat:'Дизайн'},
+{title:'Зробити лендінг для малого бізнесу',desc:'Односторінковий адаптивний сайт.',price:120,cat:'Програмування'},
+{title:'Перекласти текст з української на англійську',desc:'Близько 1500 слів.',price:20,cat:'Тексти'},
+{title:'Змонтувати коротке відео для TikTok',desc:'До 60 секунд, динамічний монтаж.',price:45,cat:'Відео'}
+];
+function card(t){return `<article class="task"><div class="tasktop"><div><h3>${esc(t.title)}</h3><span class="muted">${esc(t.desc)}</span></div><div class="price">$${t.price}</div></div><div class="tags"><span class="tag">${esc(t.cat)}</span><span class="tag">Новий</span></div><div class="taskfoot"><span class="muted">${t.author?('Автор: '+esc(t.author)):'Комісія 7%'}</span><div class="row"><button class="btn secondary" onclick="openChatWith(${Number(t.author_id)||0})">Чат</button><button class="btn" onclick="apply('${esc(t.title)}')">Відгукнутись</button></div></div></article>`}
+function render(){homeTasks.innerHTML=tasks.slice(0,3).map(card).join('');allTasks.innerHTML=tasks.map(card).join('');taskCount.textContent=tasks.length+' шт.'}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function show(id,el){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));if(el)el.classList.add('active');}
+function openCreate(){modal.classList.add('open')}function closeCreate(){modal.classList.remove('open')}
+function createTask(){let t=title.value.trim(),d=desc.value.trim(),p=Number(budget.value),c=cat.value;if(!t||!d||!p)return toast('Заповни всі поля');tasks.unshift({title:t,desc:d,price:p,cat:c});render();closeCreate();title.value='';desc.value='';toast('Завдання опубліковано')}
+let authMode='register';
+function getUser(){try{return JSON.parse(localStorage.getItem('taskmarket_user'))}catch(e){return null}}
+function saveUser(u,token){localStorage.setItem('taskmarket_user',JSON.stringify(u));if(token)localStorage.setItem('taskmarket_token',token);updateUserUI();refreshBalance()}
+function updateUserUI(){
+  const u=getUser(), name=u?.name||'Гість', email=u?.email||'Увійдіть або створіть акаунт';
+  profileName.textContent=name; profileEmail.textContent=email;
+  const letter=(name[0]||'Р').toUpperCase(); topAvatar.textContent=letter; profileAvatar.textContent=letter;
+  authBtn.style.display=u?'none':'inline-block'; logoutBtn.style.display=u?'inline-block':'none'; adminBtn.style.display=(u?.role==='admin')?'block':'none';
+}
+function showProfile(){show('profile',document.querySelectorAll('.nav button')[4])}
+function openAuth(){authMode='register';setAuthMode();authModal.classList.add('open')}
+function closeAuth(){authModal.classList.remove('open')}
+function toggleAuth(){authMode=authMode==='register'?'login':'register';setAuthMode()}
+function setAuthMode(){
+  const reg=authMode==='register';
+  authTitle.textContent=reg?'Реєстрація':'Вхід';
+  authHint.textContent=reg?'Створіть акаунт, щоб публікувати завдання та відгукуватися на замовлення.':'Увійдіть у свій TaskMarket.';
+  authName.style.display=reg?'block':'none';
+  document.querySelector('#authModal label').style.display=reg?'block':'none';
+  document.querySelector('#authModal .btn[onclick="register()"]').textContent=reg?'Створити акаунт':'Увійти';
+  document.querySelector('#authModal .btn[onclick="toggleAuth()"]').textContent=reg?'Вже маєте акаунт? Увійти':'Немає акаунта? Реєстрація';
+}
+async function register(){
+  const email=authEmail.value.trim().toLowerCase(), pass=authPass.value, name=authName.value.trim()||email.split('@')[0];
+  if(!email||!email.includes('@')||pass.length<6)return toast('Введіть email і пароль від 6 символів');
+  try{
+    const endpoint=authMode==='register'?'/api/auth/register':'/api/auth/login';
+    const body=authMode==='register'?{name,email,password:pass}:{email,password:pass};
+    const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const data=await r.json();
+    if(!r.ok) return toast(data.error||'Помилка');
+    saveUser(data.user,data.token); closeAuth(); toast(authMode==='register'?'Акаунт створено':'Ви увійшли');
+  }catch(e){toast('Сервер недоступний')}
+}
+function logout(){localStorage.removeItem('taskmarket_user');localStorage.removeItem('taskmarket_token');updateUserUI();toast('Ви вийшли з акаунта')}
+async function loadTasks(){
+  try{
+    const r=await fetch('/api/tasks'); if(!r.ok)return;
+    const data=await r.json(); if(Array.isArray(data.tasks)){tasks=data.tasks;render()}
+  }catch(e){}
+}
+async function createTask(){
+  const t=title.value.trim(),d=desc.value.trim(),p=Number(budget.value),c=cat.value,u=getUser();
+  if(!u){closeCreate();openAuth();return}
+  if(!t||!d||!p)return toast('Заповни всі поля');
+  try{
+    const r=await fetch('/api/tasks',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:t,description:d,budget:p,category:c})});
+    const data=await r.json(); if(!r.ok)return toast(data.error||'Помилка');
+    tasks.unshift(data.task);render();closeCreate();title.value='';desc.value='';toast('Завдання опубліковано');
+  }catch(e){toast('Сервер недоступний')}
+}
+function apply(t){if(!getUser()){openAuth();return}toast('Відгук на «'+t+'» прийнято')}
+let currentChatId=null,currentChatOther=null,chatTimer=null;
+function showChats(){ if(!getUser()){openAuth();return;} show('chats'); loadChats(); }
+async function loadChats(){
+  const token=localStorage.getItem('taskmarket_token'); if(!token)return;
+  try{ const r=await fetch('/api/chats',{headers:{Authorization:'Bearer '+token}}); const d=await r.json(); if(!r.ok)return;
+    chatList.innerHTML=(d.chats||[]).map(c=>`<div class="chatitem" onclick="openChat(${c.id},${c.other_id},'${esc(c.other_name)}')"><b>${esc(c.other_name)} ${Number(c.unread)?'<span class="tag">'+c.unread+'</span>':''}</b><small>${esc(c.last_message||'Новий діалог')}</small></div>`).join('')||'<span class="muted">Чатів ще немає. Відкрийте чат з автора завдання.</span>';
+  }catch(e){}
+}
+async function openChatWith(userId){
+  if(!getUser()){openAuth();return;} if(!userId || userId===getUser().id)return toast('Не можна відкрити чат із собою');
+  try{ const r=await fetch('/api/chats',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+localStorage.getItem('taskmarket_token')},body:JSON.stringify({user_id:userId})}); const d=await r.json(); if(!r.ok)return toast(d.error||'Помилка');
+    const u=await fetch('/api/chats',{headers:{Authorization:'Bearer '+localStorage.getItem('taskmarket_token')}}).then(x=>x.json()); const c=(u.chats||[]).find(x=>x.id===d.chat_id); openChat(d.chat_id,userId,c?.other_name||'Користувач');
+  }catch(e){toast('Сервер недоступний')}
+}
+function openChat(id,otherId,name){
+  currentChatId=id;currentChatOther=otherId;chatTitle.textContent=name;show('chat');loadMessages();if(chatTimer)clearInterval(chatTimer);chatTimer=setInterval(loadMessages,3000);setTimeout(()=>messageInput.focus(),100);
+}
+function showChatsFromChat(){showChats()}
+async function loadMessages(){
+  if(!currentChatId)return; const token=localStorage.getItem('taskmarket_token'); if(!token)return;
+  try{ const r=await fetch('/api/chats/'+currentChatId+'/messages',{headers:{Authorization:'Bearer '+token}}); const d=await r.json(); if(!r.ok)return; const me=getUser()?.id;
+    messages.innerHTML=(d.messages||[]).map(m=>`<div class="msg ${m.sender_id===me?'me':''}">${esc(m.body)}<time>${new Date(m.created_at).toLocaleString('uk-UA',{hour:'2-digit',minute:'2-digit'})}</time></div>`).join('')||'<span class="muted">Почніть розмову.</span>'; messages.scrollTop=messages.scrollHeight;
+  }catch(e){}
+}
+async function sendMessage(){
+  const body=messageInput.value.trim(); if(!body||!currentChatId)return; const token=localStorage.getItem('taskmarket_token');
+  try{ const r=await fetch('/api/chats/'+currentChatId+'/messages',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({body})}); const d=await r.json(); if(!r.ok)return toast(d.error||'Помилка'); messageInput.value=''; await loadMessages(); }catch(e){toast('Сервер недоступний')}
+}
+function showChats(){if(!getUser()){openAuth();return;}if(chatTimer)clearInterval(chatTimer);show('chats');loadChats();}
+
+
+async function adminFetch(url,opts={}){
+  const token=localStorage.getItem('taskmarket_token');
+  const headers=Object.assign({'Authorization':'Bearer '+token},opts.headers||{});
+  const r=await fetch(url,{...opts,headers});
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(d.error||'Помилка');
+  return d;
+}
+function showAdmin(){
+  const u=getUser(); if(u?.role!=='admin') return toast('Доступ заборонено');
+  show('admin'); loadAdmin();
+}
+async function loadAdmin(){
+  if(getUser()?.role!=='admin') return;
+  try{
+    const [st,us,ts,ps]=await Promise.all([adminFetch('/api/admin/stats'),adminFetch('/api/admin/users'),adminFetch('/api/admin/tasks'),adminFetch('/api/admin/payments')]);
+    const x=st.stats||{};
+    adminStats.innerHTML=[['Користувачі',x.users],['Заблоковані',x.blocked_users],['Завдання',x.tasks],['Відкриті',x.open_tasks],['Платежі',x.payments],['Оплачені',x.paid_payments],['Обсяг TON',Number(x.ton_volume||0).toFixed(4)],['Обсяг USDT',Number(x.usdt_volume||0).toFixed(2)]].map(a=>`<div class="admin-card"><span class="muted">${a[0]}</span><br><b>${a[1]}</b></div>`).join('');
+    adminUsers.innerHTML=(us.users||[]).map(u=>`<div class="admin-row"><b>#${u.id} ${esc(u.name)}</b> <span class="tag">${esc(u.role)}</span><span class="muted">${esc(u.email)} · TON ${Number(u.ton_balance||0).toFixed(4)} · USDT ${Number(u.usdt_balance||0).toFixed(2)}</span><div class="row" style="margin-top:8px"><span class="muted">${u.is_blocked?'Заблокований':'Активний'}</span>${u.id!==getUser().id?`<button class="btn ${u.is_blocked?'green':'danger'}" onclick="toggleUser(${u.id},${!u.is_blocked})">${u.is_blocked?'Розблокувати':'Заблокувати'}</button>`:''}</div></div>`).join('')||'<span class="muted">Користувачів немає</span>';
+    adminTasks.innerHTML=(ts.tasks||[]).map(t=>`<div class="admin-row"><b>#${t.id} ${esc(t.title)}</b><span class="muted">${esc(t.author)} · $${Number(t.budget).toFixed(2)} · ${esc(t.category)}</span><div class="row" style="margin-top:8px"><select class="select-mini" onchange="setTaskStatus(${t.id},this.value)"><option value="open" ${t.status==='open'?'selected':''}>Відкрите</option><option value="paused" ${t.status==='paused'?'selected':''}>На паузі</option><option value="closed" ${t.status==='closed'?'selected':''}>Закрите</option></select><button class="btn danger" onclick="deleteAdminTask(${t.id})">Видалити</button></div></div>`).join('')||'<span class="muted">Завдань немає</span>';
+    adminPayments.innerHTML=(ps.payments||[]).map(p=>`<div class="admin-row"><b>${esc(p.asset)} ${p.pay_amount}</b> <span class="tag">${esc(p.status)}</span><span class="muted">${esc(p.name)} · ${esc(p.email)} · ${new Date(p.created_at).toLocaleString('uk-UA')}</span><span class="muted">TX: ${esc(p.tx_hash||'—')}</span></div>`).join('')||'<span class="muted">Платежів немає</span>';
+  }catch(e){toast(e.message)}
+}
+async function toggleUser(id,blocked){try{await adminFetch('/api/admin/users/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({is_blocked:blocked})});toast(blocked?'Користувача заблоковано':'Користувача розблоковано');loadAdmin()}catch(e){toast(e.message)}}
+async function setTaskStatus(id,status){try{await adminFetch('/api/admin/tasks/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status})});toast('Статус змінено');loadAdmin()}catch(e){toast(e.message)}}
+async function deleteAdminTask(id){if(!confirm('Видалити це завдання?'))return;try{await adminFetch('/api/admin/tasks/'+id,{method:'DELETE'});toast('Завдання видалено');loadAdmin();loadTasks()}catch(e){toast(e.message)}}
+
+function toast(s){let x=document.getElementById('toast');x.textContent=s;x.classList.add('show');setTimeout(()=>x.classList.remove('show'),2200)}
+
+const PLATFORM_WALLET = "UQC49Vp9xE-IBUVjdoK10o_hhbc3O7JqnQia7SL7_sAo-dDy";
+const TON_USDT_MASTER = "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs";
+let tonUI=null, currentPayment=null, paymentTimer=null;
+
+function initTonConnect(){
+  try{
+    tonUI = new TON_CONNECT_UI.TonConnectUI({
+      manifestUrl: location.origin + '/tonconnect-manifest.json',
+      buttonRootId: 'ton-connect'
+    });
+    tonUI.onStatusChange(w=>{ if(w) toast('Гаманець підключено'); });
+  }catch(e){ console.warn(e); }
+}
+function openDeposit(){ if(!getUser()){openAuth();return} depositModal.classList.add('open') }
+function closeDeposit(){ depositModal.classList.remove('open'); if(paymentTimer) clearInterval(paymentTimer) }
+
+async function startDeposit(){
+  if(!tonUI) return toast('TON Connect ще завантажується');
+  if(!tonUI.wallet) { await tonUI.openModal(); return; }
+  const amount=Number(payAmount.value), asset=payAsset.value;
+  if(!amount || amount<=0) return toast('Вкажіть суму');
+  try{
+    const r=await fetch('/api/payments/invoice',{
+      method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(localStorage.getItem('taskmarket_token')||'')},
+      body:JSON.stringify({asset,amount})
+    });
+    const data=await r.json(); if(!r.ok)return toast(data.error||'Помилка');
+    currentPayment=data.invoice;
+    paymentInfo.innerHTML='До оплати: <b>'+data.invoice.pay_amount+' '+asset+'</b><br><small>Invoice: '+data.invoice.id+'</small>';
+    await tonUI.sendTransaction(data.transaction);
+    toast('Транзакцію підписано. Очікуємо підтвердження…');
+    watchPayment(data.invoice.id);
+  }catch(e){ toast('Платіж скасовано або виникла помилка') }
+}
+async function watchPayment(id){
+  if(paymentTimer) clearInterval(paymentTimer);
+  paymentTimer=setInterval(async()=>{
+    try{
+      const r=await fetch('/api/payments/'+id);
+      const d=await r.json();
+      if(d.status==='paid'){
+        clearInterval(paymentTimer); walletBalance.textContent='$'+Number(d.balance).toFixed(2);
+        paymentInfo.innerHTML='<b>Оплачено ✓</b>'; toast('Платіж підтверджено');
+      }
+    }catch(e){}
+  },5000);
+}
+async function refreshBalance(){
+  const u=getUser(); if(!u)return;
+  const token=localStorage.getItem('taskmarket_token'); if(!token)return;
+  try{
+    const r=await fetch('/api/me',{headers:{Authorization:'Bearer '+token}});
+    const d=await r.json();
+    if(d.user){
+      tonBalance.textContent=Number(d.user.ton_balance||0).toFixed(4);
+      usdtBalance.textContent=Number(d.user.usdt_balance||0).toFixed(2);
+    }
+    const h=await fetch('/api/payments/history',{headers:{Authorization:'Bearer '+token}});
+    const hd=await h.json();
+    paymentHistory.innerHTML=(hd.payments||[]).map(p=>
+      '<div style="padding:10px 0;border-bottom:1px solid var(--line)"><b>'+p.pay_amount+' '+p.asset+'</b> · '+p.status+
+      '<br><span class="muted">'+new Date(p.created_at).toLocaleString('uk-UA')+'</span></div>'
+    ).join('') || '<span class="muted">Операцій ще немає</span>';
+  }catch(e){}
+}
+
+render(); updateUserUI(); loadTasks(); initTonConnect(); refreshBalance();
+</script>
+</body></html>
